@@ -1,0 +1,2 @@
+# synkplayer
+Synk Music Player
