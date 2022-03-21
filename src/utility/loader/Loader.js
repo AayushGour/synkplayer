@@ -66,9 +66,9 @@ const styles = StyleSheet.create({
     three: {
         // right: 0,
         // bottom: 0,
-        borderLeftColor: THEME_WHITE,
+        borderLeftColor: THEME_BLUE_FOREGROUND,
         borderLeftWidth: 6,
-        borderRightColor: THEME_BLUE_FOREGROUND,
+        borderRightColor: THEME_WHITE,
         borderRightWidth: 6,
         // borderBottomColor: THEME_BLUE_FOREGROUND,
         // borderBottomWidth: 1,

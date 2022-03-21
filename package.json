@@ -1,5 +1,5 @@
 {
-  "name": "myApp",
+  "name": "synk-player",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -27,6 +27,7 @@
     "react-native-os": "^1.2.6",
     "react-native-pager-view": "^5.4.11",
     "react-native-permissions": "^3.3.0",
+    "react-native-restart": "^0.0.24",
     "react-native-safe-area-context": "^4.1.2",
     "react-native-screens": "^3.13.0",
     "react-native-sound": "^0.11.2",
@@ -34,6 +35,8 @@
     "react-native-track-player": "^2.1.2",
     "react-native-vector-icons": "^9.1.0",
     "react-native-webview": "^11.17.2",
+    "react-native-ytdl": "^4.8.3",
+    "react-native-ytsr": "^1.0.7",
     "react-redux": "^7.2.6",
     "redux": "^4.1.2",
     "redux-thunk": "^2.4.1"

@@ -3,12 +3,13 @@ import { Animated, Dimensions, StyleSheet, Text, Button, PanResponder, View } fr
 import * as Animatable from "react-native-animatable";
 import { connect } from "react-redux";
 import { defaultStyles, ModalTypes, THEME_BLACK_BACKGROUND, THEME_BLUE_FOREGROUND, THEME_WHITE } from '../../../Constants';
-import { setModalContent, togglePlayer } from '../../store/actions';
+import { setCurrentTrack, setModalContent, togglePlayer } from '../../store/actions';
 import Icon from "react-native-vector-icons/AntDesign";
 import FontAwesome5Icon from "react-native-vector-icons/FontAwesome5"
 import { formatTime, handlePlayerSwipe, playNext, playPrevious } from './service';
-import TrackPlayer, { useProgress, useTrackPlayerEvents, Event as TrackPlayerEvents, State } from 'react-native-track-player';
 import Slider from '@react-native-community/slider';
+import TrackPlayer, { State, Event, useTrackPlayerEvents, useProgress } from 'react-native-track-player';
+import { displayWarning } from '../services/ErrorHandler';
 
 const styles = StyleSheet.create({
     playerContainer: {
@@ -54,18 +55,15 @@ const styles = StyleSheet.create({
     }
 })
 const events = [
-    TrackPlayerEvents.PlaybackState,
-    TrackPlayerEvents.PlaybackError,
-    TrackPlayerEvents.PlaybackTrackChanged
+    Event.PlaybackError,
+    Event.PlaybackState
 ];
 
 const Player = (props) => {
-    const [playerState, setPlayerState] = useState(null)
     const playerContainer = useRef();
     const pan = useRef(new Animated.ValueXY()).current;
-    const [trackTitle, setTrackTitle] = useState();
+    const [playerState, setPlayerState] = useState(null)
     const progress = useProgress();
-
     const panResponder = PanResponder.create({
         onStartShouldSetPanResponder: () => true,
         onPanResponderMove: Animated.event([
@@ -87,28 +85,26 @@ const Player = (props) => {
     });
 
     useTrackPlayerEvents(events, async (event) => {
-        if (event.type === TrackPlayerEvents.PlaybackError) {
-            props.setModalContent({ visible: true, content: "An error occured while playing the current track.", type: ModalTypes.WARNING })
+        if (event.type === Event.PlaybackError) {
+            displayWarning(`${event?.code}: ${event?.message}`)
         }
-        if (event.type === TrackPlayerEvents.PlaybackState) {
+        if (event.type === Event.PlaybackState) {
             setPlayerState(event.state);
-        }
-        if (event.type === TrackPlayerEvents.PlaybackTrackChanged && event.nextTrack !== null) {
-            const track = await TrackPlayer.getTrack(event.nextTrack);
-            const { title } = track || {};
-            setTrackTitle(title);
         }
     });
 
     const isPlaying = playerState === State.Playing;
 
+    //listener for display player
     useEffect(() => {
         let translateVal = props.displayPlayer ? 0 : Dimensions.get("screen").height;
         playerContainer?.current?.transitionTo({ translateY: translateVal })
     }, [props.displayPlayer])
 
 
-
+    useEffect(() => {
+        console.log("player current track", props.currentTrack)
+    }, [props.currentTrack])
 
     return (<>
         <Animatable.View
@@ -137,6 +133,7 @@ const Player = (props) => {
                 </Animated.View>
             </View>
             <Button title="Click" onPress={() => props.togglePlayer(false)} />
+            {/* Main Player Content */}
             <View style={{ width: "100%", flex: 1, alignItems: "center", justifyContent: "flex-start" }}>
                 <Animatable.View
                     style={{
@@ -148,8 +145,11 @@ const Player = (props) => {
                     {...panResponder.panHandlers}
                     useNativeDriver={true}
                 >
+                    <View style={{ flex: 1 }}>
+
+                    </View>
                     <View>
-                        <Text style={{ color: THEME_WHITE }}>{trackTitle}</Text>
+                        <Text style={{ color: THEME_WHITE, paddingHorizontal: 10 }}>{props?.currentTrack?.title || "-"}</Text>
                     </View>
                     <View style={styles.playerFooter}>
                         <View style={styles.sliderContainer}>
@@ -163,6 +163,7 @@ const Player = (props) => {
                                 minimumTrackTintColor={THEME_BLUE_FOREGROUND}
                                 maximumTrackTintColor={THEME_WHITE}
                                 thumbTintColor={THEME_BLUE_FOREGROUND}
+                                onSlidingComplete={(seconds) => TrackPlayer.seekTo(seconds)}
                             />
                             <Text style={styles.sliderText}>{formatTime(progress.duration)}</Text>
                         </View>
@@ -182,7 +183,9 @@ const Player = (props) => {
                                     iconStyle={defaultStyles.iconButtonIconStyle}
                                     color={THEME_WHITE}
                                     backgroundColor="transparent"
-                                    onPress={() => { TrackPlayer.pause() }}
+                                    onPress={() => { //pause
+                                        TrackPlayer.pause()
+                                    }}
                                 />
                                 :
                                 <FontAwesome5Icon.Button name="play"
@@ -191,7 +194,9 @@ const Player = (props) => {
                                     iconStyle={defaultStyles.iconButtonIconStyle}
                                     color={THEME_WHITE}
                                     backgroundColor="transparent"
-                                    onPress={() => { TrackPlayer.play() }}
+                                    onPress={() => { //play
+                                        TrackPlayer.play();
+                                    }}
                                 />
                             }
                             <Icon.Button name="stepforward"
@@ -214,13 +219,15 @@ const Player = (props) => {
 
 const mapStateToProps = (state) => {
     return {
-        displayPlayer: state.app.displayPlayer
+        displayPlayer: state.app.displayPlayer,
+        currentTrack: state.app.currentTrack
     }
 }
 const mapDispatchToProps = (dispatch) => {
     return {
         togglePlayer: (value) => dispatch(togglePlayer(value)),
-        setModalContent: (content) => dispatch(setModalContent(content))
+        setModalContent: (content) => dispatch(setModalContent(content)),
+        setCurrentTrack: (trackDetails) => dispatch(setCurrentTrack(trackDetails))
     }
 }
 

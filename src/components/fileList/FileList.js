@@ -3,6 +3,7 @@ import { StyleSheet, View, FlatList, TouchableNativeFeedback, Text } from 'react
 import { connect } from 'react-redux'
 import { THEME_BLUE_FOREGROUND, THEME_WHITE } from '../../../Constants'
 import SimpleIcon from 'react-native-vector-icons/SimpleLineIcons';
+import { playTrack, playTrackWithIndex, playTrackWithPath } from '../player/service';
 
 const styles = StyleSheet.create({
     fileListContainer: {
@@ -30,13 +31,14 @@ const FileList = (props) => {
         <View style={styles.fileListContainer}>
             <FlatList
                 style={{ width: "100%" }}
-                keyExtractor={(item, index) => `${item.cTime}-${item.path}`}
+                keyExtractor={(item, index) => `${index}-${item.uri}`}
                 data={props.allFiles}
                 renderItem={({ item, index, separators }) => {
                     return <TouchableNativeFeedback
                         background={TouchableNativeFeedback.Ripple(THEME_BLUE_FOREGROUND, false)}
                         onPress={() => {
-                            console.log(item.path, index)
+                            console.log(item)
+                            playTrackWithIndex(index)
                         }}
                     // onLongPress={() => {
                     //     this.setState({

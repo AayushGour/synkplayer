@@ -1,9 +1,9 @@
-import React, { Component, useEffect, useState } from 'react'
+import React, { Component, useEffect, useRef, useState } from 'react'
 import Header from '../header/Header';
 import Player from '../player/Player';
-import { Dimensions, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View, BackHandler } from 'react-native';
+import { NativeModules, Dimensions, PermissionsAndroid, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View, BackHandler, UIManager, findNodeHandle } from 'react-native';
 import { SceneMap, TabBar, TabView } from 'react-native-tab-view';
-import { THEME_BLUE_FOREGROUND, THEME_TAB_BACKGROUND, THEME_WHITE } from '../../../Constants';
+import { ADD_TO_PLAYLIST_MENU_ITEM, SELECT_ALL_MENU_ITEM, THEME_BLUE_FOREGROUND, THEME_TAB_BACKGROUND, THEME_WHITE } from '../../../Constants';
 import FolderList from '../fileList/FolderList';
 import store from '../../store/store';
 import { getFiles, setModalContent, toggleLoader, togglePlayer } from '../../store/actions';
@@ -16,10 +16,12 @@ import Test from '../test/Test';
 import TrackPlayer, { State } from 'react-native-track-player';
 import { addTracks } from '../player/service';
 import ErrorModal from '../../utility/modal/ErrorModal';
+import SearchYoutube from '../search/Search';
+import Playlists from '../playlist/Playlists';
 
 const styles = StyleSheet.create({
     tabBar: {
-        backgroundColor: THEME_TAB_BACKGROUND,
+        backgroundColor: THEME_TAB_BACKGROUND
     },
     tabItem: {
         flex: 1,
@@ -29,85 +31,147 @@ const styles = StyleSheet.create({
     },
     tabItemText: {
         fontFamily: "Montserrat-Regular",
-        color: THEME_WHITE
+        color: THEME_WHITE,
+        textAlign: "center"
     }
 })
 
-class Main extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            // allFiles: [],
-            index: 0,
-            routes: [
-                { key: "songs", title: "Songs" },
-                { key: 'first', title: 'First' },
-                { key: 'test', title: 'Test' },
-            ]
-        };
-        this.layout = Dimensions.get("window");
-
+// class Main extends Component {
+const Main = (props) => {
+    const [selectedItems, setSelectedItems] = useState([])
+    const layout = useWindowDimensions();
+    const [index, setIndex] = useState(0);
+    const [icon, setIcon] = useState();
+    const [menuItems, setMenuItems] = useState([])
+    const routes = [
+        { key: "songs", title: "Songs" },
+        { key: 'folder', title: 'Folder' },
+        { key: "playlists", title: "Playlists" },
+        { key: 'test', title: 'Test' },
+        { key: "search", title: " YouTube Search" }
+    ];
+    // const renderScene = SceneMap({
+    //     songs: FileList,
+    //     first: FolderList,
+    //     test: Test
+    // })
+    const renderScene = ({ route }) => {
+        switch (route.key) {
+            case "songs":
+                return <FileList />
+            case "folder":
+                return <FolderList setMenuItemList={setMenuItemList} />
+            case "test":
+                return <Test />
+            case "search":
+                return <SearchYoutube />
+            case "playlists":
+                return <Playlists />
+            default:
+                return null;
+        }
     }
-    renderScene = SceneMap({
-        songs: FileList,
-        first: FolderList,
-        test: Test
-    })
-
-    componentDidMount = async () => {
-        addTracks();
-        if (this.props.allFiles?.length === 0) {
-            this.props.toggleLoader(true)
+    useEffect(() => {
+        PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE).then(async response => {
+            if (!response) {
+                await PermissionsAndroid.request(
+                    PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE
+                ).then((resp) => {
+                    NativeModules.DevSettings.reload();
+                })
+            }
+        })
+        if (props.allFiles?.length === 0) {
+            props.toggleLoader(true)
             getFiles(RNFS.ExternalStorageDirectoryPath);
         }
-        this.backHandler = BackHandler.addEventListener(
-            "hardwareBackPress",
-            () => {
-                if (this.props.displayPlayer) {
-                    this.props.togglePlayer(false);
-                    return true;
-                } else {
-                    return false;
-                }
+    }, [])
+
+    const backHandler = BackHandler.addEventListener(
+        "hardwareBackPress",
+        () => {
+            if (props.displayPlayer) {
+                props.togglePlayer(false);
+                return true;
+            } else {
+                return false;
             }
-        );
+        }
+    );
+
+    const handleIndexChange = (indexValue) => {
+        // switch (indexValue) {
+        //     case indexValue:
+
+        //         break;
+
+        //     default:
+        //         break;
+        // }
+        setIndex(indexValue)
     }
 
-    render() {
-        return (
-            <>
-                <Header />
-                <View style={{ width: "100%", flex: 1 }}>
-                    <TabView
-                        navigationState={{ index: this.state.index, routes: this.state.routes }}
-                        onIndexChange={(value) => this.setState({ index: value })}
-                        renderScene={this.renderScene}
-                        initialLayout={{ width: this.layout.width }}
-                        renderTabBar={(props) => {
-                            return <TabBar
-                                {...props}
-                                indicatorStyle={{ backgroundColor: THEME_BLUE_FOREGROUND }}
-                                labelStyle={styles.tabItemText}
-                                style={styles.tabBar}
-                                pressColor={THEME_BLUE_FOREGROUND}
-                            />
-                        }}
-                    />
-                    <Footer />
-                    <Player />
-                    <ErrorModal />
-                </View>
-                {this.props.displayLoader ? <Loader /> : null}
-            </>
-        );
+    const selectMenuItem = (item, index) => {
+        if (item !== "itemSelected") return;
+        switch (menuItems[index]) {
+            case SELECT_ALL_MENU_ITEM: console.log("select all"); break;
+            case ADD_TO_PLAYLIST_MENU_ITEM: console.log("add to playlist", index, props.selectedFiles); break;
+            default: break;
+        }
     }
+
+    const showPopupMenu = () => {
+        UIManager.showPopupMenu(findNodeHandle(icon), menuItems, (error) => { console.log(error) }, selectMenuItem)
+    }
+
+
+    const onRef = icon => {
+        if (!!icon) {
+            setIcon(icon);
+        }
+    }
+
+    const setMenuItemList = (itemArray = []) => {
+        setMenuItems(itemArray);
+    }
+
+    // render() {
+    return (
+        <>
+            <Header onRef={onRef} showPopupMenu={showPopupMenu} showMenuIcon={menuItems.length > 0} />
+            <View style={{ width: "100%", flex: 1 }}>
+                <TabView
+                    navigationState={{ index, routes }}
+                    onIndexChange={(value) => handleIndexChange(value)}
+                    renderScene={renderScene}
+                    initialLayout={{ width: layout.width }}
+                    renderTabBar={(props) => {
+                        return <TabBar
+                            {...props}
+                            scrollEnabled={true}
+                            indicatorStyle={{ backgroundColor: THEME_BLUE_FOREGROUND }}
+                            labelStyle={styles.tabItemText}
+                            style={styles.tabBar}
+                            pressColor={THEME_BLUE_FOREGROUND}
+                        />
+                    }}
+                />
+                <Footer />
+                <Player />
+                <ErrorModal />
+            </View>
+            {props.displayLoader ? <Loader /> : null}
+        </>
+    );
+    // }
 }
 
 const mapStateToProps = (state) => {
     return {
         allFiles: state.app.allFiles,
         displayLoader: state.app.displayLoader,
-        displayPlayer: state.app.displayPlayer
+        displayPlayer: state.app.displayPlayer,
+        selectedFiles: state.app.selectedFiles
     }
 }
 

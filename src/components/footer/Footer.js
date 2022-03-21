@@ -3,8 +3,9 @@ import { View, StyleSheet, TouchableHighlight, Text } from 'react-native';
 import { defaultStyles, ModalTypes, THEME_WHITE } from '../../../Constants';
 import { connect } from "react-redux";
 import { setModalContent, togglePlayer } from '../../store/actions';
-import TrackPlayer, { State, useTrackPlayerEvents, Event as TrackPlayerEvents } from 'react-native-track-player';
 import Icon from 'react-native-vector-icons/FontAwesome5'
+import TrackPlayer, { Event, useTrackPlayerEvents, State } from 'react-native-track-player';
+import { displayWarning } from '../services/ErrorHandler';
 
 const styles = StyleSheet.create({
     footerTouchableContainer: {
@@ -39,26 +40,19 @@ const styles = StyleSheet.create({
 })
 
 const events = [
-    TrackPlayerEvents.PlaybackState,
-    TrackPlayerEvents.PlaybackError,
-    TrackPlayerEvents.PlaybackTrackChanged
+    Event.PlaybackState,
+    Event.PlaybackError
 ];
 
 const Footer = (props) => {
     const [playerState, setPlayerState] = useState(null)
-    const [trackTitle, setTrackTitle] = useState();
 
     useTrackPlayerEvents(events, async (event) => {
-        if (event.type === TrackPlayerEvents.PlaybackError) {
-            props.setModalContent({ visible: true, content: "An error occured while playing the current track.", type: ModalTypes.WARNING })
+        if (event.type === Event.PlaybackError) {
+            displayWarning(`${event?.code}: ${event?.message}`)
         }
-        if (event.type === TrackPlayerEvents.PlaybackState) {
+        if (event.type === Event.PlaybackState) {
             setPlayerState(event.state);
-        }
-        if (event.type === TrackPlayerEvents.PlaybackTrackChanged && event.nextTrack !== null) {
-            const track = await TrackPlayer.getTrack(event.nextTrack);
-            const { title } = track || {};
-            setTrackTitle(title);
         }
     });
 
@@ -70,7 +64,7 @@ const Footer = (props) => {
         >
             <View style={styles.footerContentContainer}>
                 <View style={styles.detailContainer}>
-                    <Text style={styles.songDetails}>{trackTitle || "-"}</Text>
+                    <Text style={styles.songDetails}>{props?.currentTrack?.title || "-"}</Text>
                 </View>
                 <TouchableHighlight style={styles.iconContainer}>
                     {isPlaying ?
@@ -86,14 +80,13 @@ const Footer = (props) => {
 
 const mapStateToProps = (state) => {
     return {
-
+        currentTrack: state.app.currentTrack
     }
 }
 const mapDispatchToProps = (dispatch) => {
     return {
         togglePlayer: (value) => dispatch(togglePlayer(value)),
         setModalContent: (content) => dispatch(setModalContent(content))
-
     }
 }
 

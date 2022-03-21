@@ -1,8 +1,9 @@
 import React, { Component } from 'react'
-import { Image, PermissionsAndroid, StyleSheet, Text, View } from 'react-native';
-import { THEME_BLUE_FOREGROUND, THEME_WHITE } from '../../../Constants';
+import { Image, PermissionsAndroid, StyleSheet, Text, View, UIManager, findNodeHandle, TouchableHighlight } from 'react-native';
+import { defaultStyles, THEME_BLUE_FOREGROUND, THEME_WHITE } from '../../../Constants';
 import * as RNFS from 'react-native-fs';
 import Logo from "../../../assets/images/SynkLogo.png"
+import Icon from "react-native-vector-icons/MaterialCommunityIcons"
 
 const styles = StyleSheet.create({
     headerContainer: {
@@ -21,11 +22,20 @@ const styles = StyleSheet.create({
         color: THEME_WHITE,
         fontSize: 20,
         fontFamily: "Charmonman-Regular",
-        paddingLeft: 6
+        paddingLeft: 6,
+        flex: 1
     },
     logo: {
         width: 40,
         height: 40
+    },
+    menu: {
+        borderRadius: 30,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        paddingHorizontal: 8,
+        paddingVertical: 5
     }
 })
 
@@ -33,15 +43,11 @@ class Header extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            fileList: []
         };
 
     }
     componentDidMount = async () => {
         // console.log(RNFS.ExternalStorageDirectoryPath)
-        const granted = await PermissionsAndroid.request(
-            PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE
-        );
         // if (granted === PermissionsAndroid.RESULTS.GRANTED) {
         // RNFS.writeFile(RNFS.ExternalStorageDirectoryPath + "/text.txt", 'Lorem ipsum dolor sit amet', 'utf8')
         //     .then((success) => {
@@ -74,6 +80,7 @@ class Header extends Component {
         // this.setState({ fileList: list })
         // }
     }
+
     render() {
         return (
             <View style={styles.headerContainer}>
@@ -82,6 +89,12 @@ class Header extends Component {
                 {/* {this.state.fileList?.map((item, index) => {
                     return <Text style={styles.headerTitle} key={item + index}>{item}</Text>
                 })} */}
+                {this.props.showMenuIcon ?
+                    <TouchableHighlight ref={(ref) => this.props.onRef(ref)} style={styles.menu} onPress={this.props.showPopupMenu}>
+                        <Icon name="dots-vertical" color={THEME_WHITE} size={24} backgroundColor="transparent" style={defaultStyles.iconButtonIconStyle} />
+                    </TouchableHighlight>
+                    : null}
+
             </View>
         );
     }

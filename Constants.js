@@ -1,9 +1,11 @@
 import { StyleSheet } from 'react-native'
 export const THEME_BLUE_FOREGROUND = "#01a4e9";
+export const THEME_BLUE_FOREGROUND_TRANSPARENT = "#01a4e990";
 export const THEME_BLACK_BACKGROUND = "#121212";
 export const THEME_TAB_BACKGROUND = "#1a1a1a";
 export const THEME_WHITE = "#FFFFFF";
-export const THEME_OFF_WHITE = "#F5F5F5"
+export const THEME_OFF_WHITE = "#F5F5F5";
+export const TEXT_DISABLED = "#909090";
 export const TRANSPARENT_BLACK = "rgba(0,0,0,0.7)";
 export const WARNING_YELLOW = "#FFC302";
 export const ERROR_RED = "#FF0000";
@@ -11,7 +13,8 @@ export const ModalTypes = {
     ERROR: "error",
     WARNING: "warning"
 }
-
+export const SELECT_ALL_MENU_ITEM = "Select All";
+export const ADD_TO_PLAYLIST_MENU_ITEM = "Add to playlist";
 // export const customFonts = {
 //     Montserrat: require("./src/assets/fonts/Montserrat-Regular.ttf")
 // }
