@@ -1,4 +1,6 @@
 import { StyleSheet } from 'react-native'
+import { ExternalStorageDirectoryPath } from 'react-native-fs';
+
 export const THEME_BLUE_FOREGROUND = "#01a4e9";
 export const THEME_BLUE_FOREGROUND_TRANSPARENT = "#01a4e990";
 export const THEME_BLACK_BACKGROUND = "#121212";
@@ -38,3 +40,7 @@ export const defaultStyles = StyleSheet.create({
         margin: 0
     }
 })
+
+export const fileExtenstionList = [".mp3", ".mp4", ".flv", ".ogg", ".wav", ".amr", ".ac4", ".flac", ".adts", ".ac3", ".webm"]
+
+export const FILE_STORAGE_DIRECTORY = `${ExternalStorageDirectoryPath}/synk-player`;

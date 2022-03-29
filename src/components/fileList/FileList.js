@@ -1,9 +1,12 @@
 import React from 'react'
-import { StyleSheet, View, FlatList, TouchableNativeFeedback, Text } from 'react-native'
+import { StyleSheet, View, FlatList, TouchableNativeFeedback, Text, Button } from 'react-native'
 import { connect } from 'react-redux'
 import { THEME_BLUE_FOREGROUND, THEME_WHITE } from '../../../Constants'
 import SimpleIcon from 'react-native-vector-icons/SimpleLineIcons';
-import { playTrack, playTrackWithIndex, playTrackWithPath } from '../player/service';
+import { playTrack, playTrackWithIndex } from '../player/service';
+import { getFiles } from '../../utility/store/action';
+import * as RNFS from "react-native-fs";
+import { toggleLoader } from '../../store/actions';
 
 const styles = StyleSheet.create({
     fileListContainer: {
@@ -29,6 +32,10 @@ const styles = StyleSheet.create({
 const FileList = (props) => {
     return (
         <View style={styles.fileListContainer}>
+            <Button title='Refresh' onPress={() => {
+                props.toggleLoader(true)
+                getFiles(RNFS.ExternalStorageDirectoryPath)
+            }} />
             <FlatList
                 style={{ width: "100%" }}
                 keyExtractor={(item, index) => `${index}-${item.uri}`}
@@ -37,7 +44,6 @@ const FileList = (props) => {
                     return <TouchableNativeFeedback
                         background={TouchableNativeFeedback.Ripple(THEME_BLUE_FOREGROUND, false)}
                         onPress={() => {
-                            console.log(item)
                             playTrackWithIndex(index)
                         }}
                     // onLongPress={() => {
@@ -63,12 +69,12 @@ const FileList = (props) => {
 const mapStateToProps = (state) => {
     return {
         displayLoader: state.app.displayLoader,
-        allFiles: state.app.allFiles
+        allFiles: state.data.allFiles
     }
 }
 const mapDispatchToProps = (dispatch) => {
     return {
-
+        toggleLoader: (value) => dispatch(toggleLoader(value))
     }
 }
 

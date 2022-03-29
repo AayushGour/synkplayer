@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
     headerTitle: {
         color: THEME_WHITE,
         fontSize: 20,
-        fontFamily: "Charmonman-Regular",
+        fontFamily: "Montserrat-Regular",
         paddingLeft: 6,
         flex: 1
     },

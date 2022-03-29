@@ -2,11 +2,13 @@ import React, { useEffect } from 'react'
 import { Platform, SafeAreaView, StatusBar, StyleSheet, Text, View } from 'react-native';
 import TrackPlayer, { Capability } from 'react-native-track-player';
 import { Provider } from 'react-redux';
-import { THEME_BLUE_FOREGROUND } from './Constants';
+import { FILE_STORAGE_DIRECTORY, THEME_BLUE_FOREGROUND, THEME_BLUE_FOREGROUND_TRANSPARENT } from './Constants';
 import Icon from "react-native-vector-icons/AntDesign";
 import FontAwesome5Icon from "react-native-vector-icons/FontAwesome5"
 import Main from './src/components/main/Main';
-import store from './src/store/store';
+import { PersistGate } from 'redux-persist/integration/react';
+import store, { persistor } from './src/store/store';
+import Loader from './src/utility/loader/Loader';
 
 export default function App() {
   useEffect(() => {
@@ -36,10 +38,12 @@ export default function App() {
   }, [])
   return (
     <Provider store={store} >
-      <SafeAreaView style={styles.container}>
-        <StatusBar translucent={true} backgroundColor={THEME_BLUE_FOREGROUND} style="light" />
-        <Main />
-      </SafeAreaView>
+      <PersistGate loading={null} persistor={persistor}>
+        <SafeAreaView style={styles.container}>
+          <StatusBar translucent={true} backgroundColor={THEME_BLUE_FOREGROUND_TRANSPARENT} style="light" />
+          <Main />
+        </SafeAreaView>
+      </PersistGate>
     </Provider>
   );
 }

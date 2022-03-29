@@ -3,10 +3,9 @@ import Header from '../header/Header';
 import Player from '../player/Player';
 import { NativeModules, Dimensions, PermissionsAndroid, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View, BackHandler, UIManager, findNodeHandle } from 'react-native';
 import { SceneMap, TabBar, TabView } from 'react-native-tab-view';
-import { ADD_TO_PLAYLIST_MENU_ITEM, SELECT_ALL_MENU_ITEM, THEME_BLUE_FOREGROUND, THEME_TAB_BACKGROUND, THEME_WHITE } from '../../../Constants';
+import { ADD_TO_PLAYLIST_MENU_ITEM, FILE_STORAGE_DIRECTORY, SELECT_ALL_MENU_ITEM, THEME_BLUE_FOREGROUND, THEME_TAB_BACKGROUND, THEME_WHITE } from '../../../Constants';
 import FolderList from '../fileList/FolderList';
-import store from '../../store/store';
-import { getFiles, setModalContent, toggleLoader, togglePlayer } from '../../store/actions';
+import { resetSelectedFiles, setModalContent, toggleLoader, togglePlayer } from '../../store/actions';
 import * as RNFS from 'react-native-fs';
 import { connect } from 'react-redux';
 import Loader from '../../utility/loader/Loader';
@@ -18,6 +17,7 @@ import { addTracks } from '../player/service';
 import ErrorModal from '../../utility/modal/ErrorModal';
 import SearchYoutube from '../search/Search';
 import Playlists from '../playlist/Playlists';
+import { getFiles } from '../../utility/store/action';
 
 const styles = StyleSheet.create({
     tabBar: {
@@ -45,7 +45,7 @@ const Main = (props) => {
     const [menuItems, setMenuItems] = useState([])
     const routes = [
         { key: "songs", title: "Songs" },
-        { key: 'folder', title: 'Folder' },
+        { key: 'folder', title: 'Folders' },
         { key: "playlists", title: "Playlists" },
         { key: 'test', title: 'Test' },
         { key: "search", title: " YouTube Search" }
@@ -85,6 +85,12 @@ const Main = (props) => {
             props.toggleLoader(true)
             getFiles(RNFS.ExternalStorageDirectoryPath);
         }
+        RNFS.exists(FILE_STORAGE_DIRECTORY).then(async resp => {
+            console.log(FILE_STORAGE_DIRECTORY, resp)
+            if (!resp) {
+                await RNFS.mkdir(FILE_STORAGE_DIRECTORY);
+            }
+        })
     }, [])
 
     const backHandler = BackHandler.addEventListener(
@@ -100,14 +106,19 @@ const Main = (props) => {
     );
 
     const handleIndexChange = (indexValue) => {
-        // switch (indexValue) {
-        //     case indexValue:
+        props.resetSelectedFiles();
+        setMenuItemList();
+        switch (indexValue) {
+            case 0:
+                console.log("songs")
+                break;
+            case 1:
+                console.log("folderlist")
+                break;
 
-        //         break;
-
-        //     default:
-        //         break;
-        // }
+            default:
+                break;
+        }
         setIndex(indexValue)
     }
 
@@ -157,9 +168,9 @@ const Main = (props) => {
                     }}
                 />
                 <Footer />
-                <Player />
                 <ErrorModal />
             </View>
+            <Player />
             {props.displayLoader ? <Loader /> : null}
         </>
     );
@@ -168,7 +179,7 @@ const Main = (props) => {
 
 const mapStateToProps = (state) => {
     return {
-        allFiles: state.app.allFiles,
+        allFiles: state.data.allFiles,
         displayLoader: state.app.displayLoader,
         displayPlayer: state.app.displayPlayer,
         selectedFiles: state.app.selectedFiles
@@ -180,46 +191,8 @@ const mapDispatchToProps = (dispatch) => {
         toggleLoader: (value) => dispatch(toggleLoader(value)),
         togglePlayer: (value) => dispatch(togglePlayer(value)),
         setModalContent: (content) => dispatch(setModalContent(content)),
+        resetSelectedFiles: () => dispatch(resetSelectedFiles())
     }
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Main);
-
-// export const Main = (props) => {
-//     const layout = useWindowDimensions();
-//     const [index, setIndex] = React.useState(0);
-//     const [routes] = React.useState([
-//         { key: 'first', title: 'First' },
-//         { key: 'second', title: 'Second' },
-//     ]);
-//     const renderScene = SceneMap({
-//         first: FolderList,
-//         second: Player
-//     })
-
-
-//     return (
-//         <>
-//             <Header />
-//             <View style={{ width: "100%", height: "100%" }}>
-//                 <TabView
-//                     navigationState={{ index, routes }}
-//                     onIndexChange={setIndex}
-//                     renderScene={renderScene}
-//                     initialLayout={{ width: layout.width }}
-//                     renderTabBar={(props) => {
-//                         return <TabBar
-//                             {...props}
-//                             indicatorStyle={{ backgroundColor: THEME_BLUE_FOREGROUND }}
-//                             labelStyle={styles.tabItemText}
-//                             style={styles.tabBar}
-//                             pressColor={THEME_BLUE_FOREGROUND}
-//                         />
-//                     }}
-//                 />
-
-//             </View>
-//         </>
-//     );
-
-// }

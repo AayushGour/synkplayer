@@ -53,9 +53,9 @@ const styles = StyleSheet.create({
     two: {
         // right: 0,
         // top: 0,
-        borderLeftColor: THEME_BLUE_FOREGROUND,
+        borderLeftColor: THEME_WHITE,
         borderLeftWidth: 6,
-        borderRightColor: THEME_WHITE,
+        borderRightColor: THEME_BLUE_FOREGROUND,
         borderRightWidth: 6,
         // borderBottomColor: THEME_BLUE_FOREGROUND,
         // borderBottomWidth: 1,
@@ -93,24 +93,24 @@ const two = {
     from: {
         rotateX: '50deg',
         rotateY: '10deg',
-        rotateZ: '0deg',
+        rotateZ: '30deg',
     },
     to: {
         rotateX: '50deg',
         rotateY: '10deg',
-        rotateZ: '360deg',
+        rotateZ: '390deg',
     }
 }
 const three = {
     from: {
         rotateX: '35deg',
         rotateY: '55deg',
-        rotateZ: '0deg',
+        rotateZ: '60deg',
     },
     to: {
         rotateX: '35deg',
         rotateY: '55deg',
-        rotateZ: '360deg',
+        rotateZ: '420deg',
     }
 }
 

@@ -1,0 +1,2 @@
+export const SET_PLAYLIST = "SET_PLAYLIST";
+export const ADD_TO_PLAYLIST = "ADD_TO_PLAYLIST";

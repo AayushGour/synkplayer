@@ -5,6 +5,10 @@ import TrackPlayer, { State } from 'react-native-track-player';
 import * as Animatable from "react-native-animatable";
 import ytdl from 'react-native-ytdl';
 import ytsr from "react-native-ytsr";
+import * as RNFS from "react-native-fs";
+import MediaMeta from "react-native-media-meta";
+import { connect } from 'react-redux';
+import { addToPlaylist } from '../playlist/store/action';
 
 const Test = (props) => {
     return (
@@ -22,18 +26,62 @@ const Test = (props) => {
                 const youtubeURL = 'http://www.youtube.com/watch?v=04GiqLjRO3A';
                 const urls = await ytdl(youtubeURL, { quality: 'highestaudio' });
                 console.log(urls)
-                await TrackPlayer.reset();
-                await TrackPlayer.add(urls);
-                await TrackPlayer.play()
+                let dat = RNFS.downloadFile({
+                    fromUrl: urls[0].url,
+                    toFile: `${RNFS.DownloadDirectoryPath}/"testmp3.mp3`,
+                    background: true,
+                    cacheable: false
+                })
+                console.log(dat);
+                console.log(await dat.promise)
+                // await TrackPlayer.reset();
+                // await TrackPlayer.add(urls);
+                // await TrackPlayer.play()
             }} />
             <Button title={"Youtube Search"} onPress={async () => {
                 let search = await ytsr("blastoyz")
                 console.log(search)
+            }} />
+            <Button title={"Meta Data"} onPress={async () => {
+                MediaMeta.get("/storage/emulated/0/Download/Eminem - Venom.webm").then((res) => console.log(res));
+
+            }} />
+            <Button title={"Add to playlist"} onPress={async () => {
+                props.addToPlaylist({ name: "test", url: "something" });
+            }} />
+            <Button title={"Search Name"} onPress={async () => {
+                console.log(props.playlists?.find((elem) => elem.name === "test"))
+            }} />
+            <Button title={"Youtube Info"} onPress={async () => {
+                let search = await ytdl.getInfo("https://www.youtube.com/watch?v=8CdcCD5V-d8", { quality: 'highestaudio', filter: "audio" })
+                console.log(search)
+                let format = ytdl.chooseFormat(search.formats, { quality: 'highestaudio', filter: "audio" })
+                console.log(format, `${RNFS.DownloadDirectoryPath}/${search?.videoDetails?.title}.${format?.container}`)
+                let downloadOptions = {
+                    fromUrl: format?.url,
+                    toFile: `${RNFS.DownloadDirectoryPath}/${search?.videoDetails?.title}.${format?.container}`,
+                    background: true,
+                    cacheable: false,
+                    progress: (val) => console.log(val)
+                }
+                let download = RNFS.downloadFile(downloadOptions)
+                download.promise.then(resp => {
+                    console.log(resp)
+                })
             }} />
 
         </View>
     );
 
 }
-
-export default Test;
+const mapStateToProps = (state) => {
+    return {
+        playlists: state.playlist.playlists
+    }
+}
+const mapDispatchToProps = (dispatch) => {
+    return {
+        addToPlaylist: (track) => dispatch(addToPlaylist(track))
+    }
+}
+export default connect(mapStateToProps, mapDispatchToProps)(Test);

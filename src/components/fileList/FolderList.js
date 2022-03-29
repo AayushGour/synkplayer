@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Button, DeviceEventEmitter, FlatList, StyleSheet, Text, TouchableNativeFeedback, View } from 'react-native';
 import * as RNFS from 'react-native-fs';
 import SimpleIcon from 'react-native-vector-icons/SimpleLineIcons';
-import { ADD_TO_PLAYLIST_MENU_ITEM, SELECT_ALL_MENU_ITEM, TEXT_DISABLED, THEME_BLUE_FOREGROUND, THEME_BLUE_FOREGROUND_TRANSPARENT, THEME_WHITE } from '../../../Constants';
+import { ADD_TO_PLAYLIST_MENU_ITEM, fileExtenstionList, SELECT_ALL_MENU_ITEM, TEXT_DISABLED, THEME_BLUE_FOREGROUND, THEME_BLUE_FOREGROUND_TRANSPARENT, THEME_WHITE } from '../../../Constants';
 import CheckBox from '@react-native-community/checkbox';
 import { playTrackWithPath } from '../player/service';
 import { connect } from 'react-redux';
@@ -140,7 +140,7 @@ class FolderList extends Component {
                     />
                     <Text numberOfLines={1} ellipsizeMode="head" style={styles.currentPathLabel}>{this.state.currentPath}</Text>
                     {this.state.selectFile && <View>
-                        <Text style={styles.selectedFileCount}>Selected: {this.state.selectedArray.length}</Text>
+                        <Text style={styles.selectedFileCount}>Selected: {this.props.selectedFiles?.length}</Text>
 
                     </View>
                     }
@@ -152,7 +152,7 @@ class FolderList extends Component {
                         keyExtractor={(item, index) => `${item?.mtime}-${item?.name}-${index}`}
                         data={this.state.fileList}
                         renderItem={({ item, index, separators }) => {
-                            if (item.isDirectory() || (item.isFile() && (item.name.endsWith(".mp3") || item.name.endsWith(".amr")) || item.name.endsWith(".ogg") || item.name.endsWith(".flv") || item.name.endsWith(".mp4"))) {
+                            if (item.isDirectory() || (item.isFile() && fileExtenstionList.some((extension) => { return item?.name?.endsWith(extension) }))) {
                                 return <TouchableNativeFeedback
                                     onPress={() => {
                                         if (item.isDirectory()) {
@@ -161,9 +161,10 @@ class FolderList extends Component {
                                             } else {
                                                 this.getDirList(item.path)
                                             }
-                                        } else if (item.isFile() && (item.name.endsWith(".mp3") || item.name.endsWith(".amr") || item.name.endsWith(".ogg") || item.name.endsWith(".flv") || item.name.endsWith(".mp4"))) {
+                                        } else if (item.isFile() && fileExtenstionList.some((extension) => { return item?.name?.endsWith(extension) })) {
                                             if (this.state.selectFile) {
-                                                let array = this.state.selectedArray;
+                                                // let array = this.state.selectedArray;
+                                                let array = this.props.selectedFiles;
                                                 if (array.includes(index)) {
                                                     array.splice(array.indexOf(index), 1);
                                                 } else {
@@ -194,7 +195,8 @@ class FolderList extends Component {
                                     }}
                                     onLongPress={() => {
                                         if (item.isFile() && !this.state.selectFile) {
-                                            let array = [...this.state.selectedArray, index]
+                                            // let array = [...this.state.selectedArray, index]
+                                            let array = [...this.props.selectedFiles, index]
                                             this.props.setMenuItemList([ADD_TO_PLAYLIST_MENU_ITEM]);
                                             this.getSelectedFiles(array);
                                             this.setState({
@@ -206,7 +208,7 @@ class FolderList extends Component {
                                     disabled={this.state.selectFile && item.isDirectory()}
                                     background={TouchableNativeFeedback.Ripple(THEME_BLUE_FOREGROUND, false)}
                                 >
-                                    <View style={this.state.selectFile && item.isDirectory() ? styles.disabled : this.state.selectedArray.includes(index) ? [styles.selected, styles.listItemContainer] : styles.listItemContainer}>
+                                    <View style={this.state.selectFile && item.isDirectory() ? styles.disabled : !!this.props.selectedFiles?.find((element) => element.path === item.path) ? [styles.selected, styles.listItemContainer] : styles.listItemContainer}>
                                         {/* {this.state.selectFile && <CheckBox  
                                         />} */}
                                         <SimpleIcon name={`${item.isDirectory() ? "folder" : "music-tone-alt"}`} size={20} color={this.state.selectFile && item.isDirectory() ? TEXT_DISABLED : THEME_WHITE} />
@@ -223,7 +225,9 @@ class FolderList extends Component {
 }
 
 const mapStateToProps = (state) => {
-    return {}
+    return {
+        selectedFiles: state.app.selectedFiles
+    }
 }
 const mapDispatchToProps = (dispatch) => {
     return {

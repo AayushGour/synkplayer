@@ -1,11 +1,12 @@
 // import TrackPlayer from "react-native-track-player";
 import MediaMeta from "react-native-media-meta";
-import store from "../../store/store";
 import { setCurrentTrack, setModalContent } from "../../store/actions";
 import { ModalTypes } from "../../../Constants";
 import Sound from "react-native-sound";
 import TrackPlayer from "react-native-track-player";
 import { displayError } from "../services/ErrorHandler";
+import store from "../../store/store";
+
 
 const getMediaMetaData = (path) => {
     return MediaMeta.get(path).then((data) => data).catch((error) => store.dispatch(setModalContent({ visible: true, content: error, type: ModalTypes.ERROR })));
@@ -87,17 +88,17 @@ export const playPrevious = async () => {
 }
 
 export const playTrackWithPath = async (track) => {
-    let allFiles = store.getState().app.allFiles;
-    let currentTrackIndex = allFiles?.findIndex(elem => elem.url === track.url);
-    // await TrackPlayer.reset().catch((error) => displayError(error));
+    // let allFiles = store.getState().data.allFiles;
+    // let currentTrackIndex = allFiles?.findIndex(elem => elem.url === track.url);
+    await TrackPlayer.reset().catch((error) => displayError(error));
     store.dispatch(setCurrentTrack(track));
-    await TrackPlayer.skip(currentTrackIndex).catch((error) => displayError(error));
-    // await TrackPlayer.add(track).catch((error) => displayError(error));
+    // await TrackPlayer.skip(currentTrackIndex).catch((error) => displayError(error));
+    await TrackPlayer.add(track).catch((error) => displayError(error));
     await TrackPlayer.play().catch((error) => displayError(error));
 }
 
 export const playTrackWithIndex = async (index) => {
-    let allFiles = store.getState().app.allFiles;
+    let allFiles = store.getState().data.allFiles;
     let queue = await TrackPlayer.getQueue();
     if (queue.length != allFiles.length) {
         console.log(allFiles, index)
@@ -114,4 +115,11 @@ export const playTrackWithIndex = async (index) => {
         await TrackPlayer.play().catch((error) => displayError(error));
 
     }
+}
+
+export const playTrack = async (track) => {
+    await TrackPlayer.reset().catch((error) => displayError(error));
+    store.dispatch(setCurrentTrack(track));
+    await TrackPlayer.add(track).catch((error) => displayError(error));
+    await TrackPlayer.play().catch((error) => displayError(error));
 }
