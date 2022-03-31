@@ -6,7 +6,7 @@ import { ADD_TO_PLAYLIST_MENU_ITEM, fileExtenstionList, SELECT_ALL_MENU_ITEM, TE
 import CheckBox from '@react-native-community/checkbox';
 import { playTrackWithPath } from '../player/service';
 import { connect } from 'react-redux';
-import { setSelectedFiles } from '../../store/actions';
+import { setSelectedFiles, setSelectFile } from '../../store/actions';
 
 const styles = StyleSheet.create({
     fileListContainer: {
@@ -131,15 +131,15 @@ class FolderList extends Component {
                         name="action-undo"
                         backgroundColor={"transparent"}
                         size={20}
-                        color={this.state.selectFile ? TEXT_DISABLED : THEME_WHITE}
+                        color={this.props.selectFile ? TEXT_DISABLED : THEME_WHITE}
                         style={styles.backButton}
                         onPress={(() => {
                             this.getDirList(this.state.currentPath?.split("/").slice(0, -1).join("/"))
                         })}
-                        disabled={this.state.selectFile}
+                        disabled={this.props.selectFile}
                     />
                     <Text numberOfLines={1} ellipsizeMode="head" style={styles.currentPathLabel}>{this.state.currentPath}</Text>
-                    {this.state.selectFile && <View>
+                    {this.props.selectFile && <View>
                         <Text style={styles.selectedFileCount}>Selected: {this.props.selectedFiles?.length}</Text>
 
                     </View>
@@ -156,63 +156,70 @@ class FolderList extends Component {
                                 return <TouchableNativeFeedback
                                     onPress={() => {
                                         if (item.isDirectory()) {
-                                            if (this.state.selectFile) {
+                                            if (this.props.selectFile) {
                                                 // console.log("This is a file");
                                             } else {
                                                 this.getDirList(item.path)
                                             }
                                         } else if (item.isFile() && fileExtenstionList.some((extension) => { return item?.name?.endsWith(extension) })) {
-                                            if (this.state.selectFile) {
+                                            if (this.props.selectFile) {
                                                 // let array = this.state.selectedArray;
                                                 let array = this.props.selectedFiles;
-                                                if (array.includes(index)) {
-                                                    array.splice(array.indexOf(index), 1);
+                                                if (array.includes(item)) {
+                                                    array.splice(array.indexOf(item), 1);
                                                 } else {
-                                                    array.push(index);
+                                                    array.push(item);
                                                 }
                                                 console.log("array", array)
                                                 if (array.length > 0) {
                                                     this.getSelectedFiles(array);
-                                                    this.setState({
-                                                        selectedArray: array
-                                                    })
+                                                    // this.setState({
+                                                    //     selectedArray: array
+                                                    // })
                                                 } else if (array.length === 0) {
                                                     this.getSelectedFiles(array);
                                                     this.props.setMenuItemList()
-                                                    this.setState({
-                                                        selectedArray: array,
-                                                        selectFile: false
-                                                    })
+                                                    this.props.setSelectFile(false);
+                                                    // this.setState({
+                                                    // selectedArray: array,
+                                                    // selectFile: false
+                                                    // })
                                                 }
                                             } else {
-                                                let track = {
-                                                    url: item.path,
-                                                    title: item.name
+                                                let track = {}
+                                                if (this.props.trackRecords?.some(elem => elem?.url === item?.path)) {
+                                                    track = this.props.trackRecords?.find(elem => elem?.url === item?.path);
+                                                } else {
+                                                    track = {
+                                                        url: item.path,
+                                                        title: item.name
+                                                    }
                                                 }
                                                 playTrackWithPath(track);
                                             }
                                         }
                                     }}
                                     onLongPress={() => {
-                                        if (item.isFile() && !this.state.selectFile) {
+                                        if (item.isFile() && !this.props.selectFile) {
                                             // let array = [...this.state.selectedArray, index]
                                             let array = [...this.props.selectedFiles, index]
                                             this.props.setMenuItemList([ADD_TO_PLAYLIST_MENU_ITEM]);
                                             this.getSelectedFiles(array);
-                                            this.setState({
-                                                selectFile: true,
-                                                selectedArray: array
-                                            })
+                                            this.props.setSelectFile(true)
+                                            // this.setState({
+                                            //     selectFile: true,
+                                            // selectedArray: array
+                                            // })
                                         }
                                     }}
-                                    disabled={this.state.selectFile && item.isDirectory()}
+                                    disabled={this.props.selectFile && item.isDirectory()}
                                     background={TouchableNativeFeedback.Ripple(THEME_BLUE_FOREGROUND, false)}
                                 >
-                                    <View style={this.state.selectFile && item.isDirectory() ? styles.disabled : !!this.props.selectedFiles?.find((element) => element.path === item.path) ? [styles.selected, styles.listItemContainer] : styles.listItemContainer}>
+                                    <View style={this.props.selectFile && item.isDirectory() ? styles.disabled : !!this.props.selectedFiles?.find((element) => element.path === item.path) ? [styles.selected, styles.listItemContainer] : styles.listItemContainer}>
                                         {/* {this.state.selectFile && <CheckBox  
                                         />} */}
-                                        <SimpleIcon name={`${item.isDirectory() ? "folder" : "music-tone-alt"}`} size={20} color={this.state.selectFile && item.isDirectory() ? TEXT_DISABLED : THEME_WHITE} />
-                                        <Text style={this.state.selectFile && item.isDirectory() ? styles.disabledText : styles.listElem}>{item.name}</Text>
+                                        <SimpleIcon name={`${item.isDirectory() ? "folder" : "music-tone-alt"}`} size={20} color={this.props.selectFile && item.isDirectory() ? TEXT_DISABLED : THEME_WHITE} />
+                                        <Text style={this.props.selectFile && item.isDirectory() ? styles.disabledText : styles.listElem}>{item.name}</Text>
                                     </View>
                                 </TouchableNativeFeedback>
                             }
@@ -226,12 +233,15 @@ class FolderList extends Component {
 
 const mapStateToProps = (state) => {
     return {
-        selectedFiles: state.app.selectedFiles
+        selectedFiles: state.app.selectedFiles,
+        selectFile: state.app.selectFile,
+        trackRecords: state.data.trackRecords
     }
 }
 const mapDispatchToProps = (dispatch) => {
     return {
-        setSelectedFiles: (files) => dispatch(setSelectedFiles(files))
+        setSelectedFiles: (files) => dispatch(setSelectedFiles(files)),
+        setSelectFile: (value) => dispatch(setSelectFile(value))
     }
 }
 

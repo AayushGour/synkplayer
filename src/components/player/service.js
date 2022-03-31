@@ -1,11 +1,10 @@
 // import TrackPlayer from "react-native-track-player";
 import MediaMeta from "react-native-media-meta";
-import { setCurrentTrack, setModalContent } from "../../store/actions";
-import { ModalTypes } from "../../../Constants";
-import Sound from "react-native-sound";
 import TrackPlayer from "react-native-track-player";
-import { displayError } from "../services/ErrorHandler";
+import { ModalTypes } from "../../../Constants";
+import { setCurrentTrack, setModalContent } from "../../store/actions";
 import store from "../../store/store";
+import { displayError } from "../services/ErrorHandler";
 
 
 const getMediaMetaData = (path) => {
@@ -74,7 +73,7 @@ export const playNext = async () => {
     let queue = await TrackPlayer.getQueue();
     let nextTrackNumber = currentTrackNumber >= 0 && (currentTrackNumber + 1) < queue.length ? currentTrackNumber + 1 : 0;
     let nextTrack = queue[nextTrackNumber];
-    store.dispatch(setCurrentTrack(nextTrack));
+    // store.dispatch(setCurrentTrack(nextTrack));
     await TrackPlayer.skip(nextTrackNumber);
 }
 
@@ -83,7 +82,7 @@ export const playPrevious = async () => {
     let queue = await TrackPlayer.getQueue();
     let previousTrackNumber = (currentTrackNumber - 1) >= 0 ? currentTrackNumber - 1 : (queue.length - 1);
     let previousTrack = queue[previousTrackNumber];
-    store.dispatch(setCurrentTrack(previousTrack));
+    // store.dispatch(setCurrentTrack(previousTrack));
     await TrackPlayer.skip(previousTrackNumber);
 }
 

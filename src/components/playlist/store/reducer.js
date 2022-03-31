@@ -7,10 +7,10 @@ const initialState = {
 const playlistReducer = (state = initialState, action) => {
     switch (action.type) {
         case SET_PLAYLIST:
-            return Object.assign({}, state, { playlists: action.payload });
+            return Object.assign([], state, { playlists: action.payload });
         case ADD_TO_PLAYLIST:
             let addPlaylist = [...state.playlists, action.payload];
-            return Object.assign({}, state, { playlists: addPlaylist });
+            return Object.assign([], state, { playlists: addPlaylist });
         default:
             return state;
     }

@@ -35,10 +35,17 @@ export const getFiles = async (path) => {
         await RNFS.readDir(path).then(result => {
             result.map(element => {
                 if (fileExtenstionList.some((extension) => { return element?.name?.endsWith(extension) })) {
-                    proxy.push({
-                        title: element.name,
-                        url: element.path
-                    })
+                    let trackRecords = store.getState().data.trackRecords;
+                    let track = {};
+                    if (trackRecords?.some(elem => elem?.url === element?.path)) {
+                        track = trackRecords?.find(elem => elem?.url === element?.path);
+                    } else {
+                        track = {
+                            title: element.name,
+                            url: element.path
+                        }
+                    }
+                    proxy.push(track);
                 } else if (element?.isDirectory()) {
                     getFiles(element.path);
                 }

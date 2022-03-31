@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { View, Text, TextInput, StyleSheet, FlatList, Image, TouchableNativeFeedback, ActivityIndicator } from 'react-native'
-import { FILE_STORAGE_DIRECTORY, THEME_BLUE_FOREGROUND, THEME_OFF_WHITE, THEME_WHITE, TRANSPARENT_BLACK } from "./../../../Constants"
+import { defaultStyles, FILE_STORAGE_DIRECTORY, THEME_BLUE_FOREGROUND, THEME_OFF_WHITE, THEME_WHITE, TRANSPARENT_BLACK } from "./../../../Constants"
 import ytsr from "react-native-ytsr";
 import { playTrack } from '../player/service';
 import ytdl from 'react-native-ytdl';
@@ -67,7 +67,6 @@ const SearchYoutube = (props) => {
     const [search, setSearch] = useState("");
     const [focused, setFocused] = useState(false);
     const [searchData, setSearchData] = useState([]);
-    const [songLoadArray, setSongLoadArray] = useState([])
 
     const onSubmit = async () => {
         props.toggleLoader(true);
@@ -94,7 +93,7 @@ const SearchYoutube = (props) => {
                     placeholderTextColor={"grey"}
                     onSubmitEditing={onSubmit}
                 />
-
+                {search?.trim()?.length > 0 && <Icon.Button onPress={() => setSearch("")} size={15} style={defaultStyles.iconButtonStyle} backgroundColor={"transparent"} name='closecircle' color="grey" />}
             </View>
             <FlatList
                 style={{ width: "100%" }}

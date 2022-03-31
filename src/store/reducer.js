@@ -1,6 +1,6 @@
 // Main Reducer
 
-import { DISPLAY_LOADER, DISPLAY_PLAYER, SET_CURRENT_TRACK, SET_MODAL_CONTENT, SET_SELECTED_FILES, SET_WRITE_PERMISSION } from "./action-types";
+import { DISPLAY_LOADER, DISPLAY_PLAYER, SET_CURRENT_TRACK, SET_MODAL_CONTENT, SET_SELECTED_FILES, SET_SELECT_FILE, SET_WRITE_PERMISSION } from "./action-types";
 
 const initialState = {
     writePermission: false,
@@ -8,6 +8,7 @@ const initialState = {
     displayPlayer: false,
     modalState: {},
     currentTrack: {},
+    selectFile: false,
     selectedFiles: []
 }
 
@@ -25,6 +26,8 @@ const appReducer = (state = initialState, action) => {
             return Object.assign({}, state, { currentTrack: action.payload })
         case SET_SELECTED_FILES:
             return Object.assign([], state, { selectedFiles: action.payload })
+        case SET_SELECT_FILE:
+            return Object.assign([], state, { selectFile: action.payload })
         default:
             return state;
     }

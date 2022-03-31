@@ -1,5 +1,5 @@
 // Define all actions
-import { DISPLAY_LOADER, DISPLAY_PLAYER, SET_ALL_FILES, SET_CURRENT_TRACK, SET_MODAL_CONTENT, SET_SELECTED_FILES } from './action-types';
+import { DISPLAY_LOADER, DISPLAY_PLAYER, SET_ALL_FILES, SET_CURRENT_TRACK, SET_MODAL_CONTENT, SET_SELECTED_FILES, SET_SELECT_FILE } from './action-types';
 
 export const toggleLoader = (value) => {
     return ({ type: DISPLAY_LOADER, payload: value });
@@ -23,4 +23,8 @@ export const setSelectedFiles = (selected) => {
 }
 export const resetSelectedFiles = () => {
     return ({ type: SET_SELECTED_FILES, payload: [] });
+}
+
+export const setSelectFile = (selected) => {
+    return ({ type: SET_SELECT_FILE, payload: selected });
 }

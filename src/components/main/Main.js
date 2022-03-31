@@ -5,7 +5,7 @@ import { NativeModules, Dimensions, PermissionsAndroid, StyleSheet, Text, Toucha
 import { SceneMap, TabBar, TabView } from 'react-native-tab-view';
 import { ADD_TO_PLAYLIST_MENU_ITEM, FILE_STORAGE_DIRECTORY, SELECT_ALL_MENU_ITEM, THEME_BLUE_FOREGROUND, THEME_TAB_BACKGROUND, THEME_WHITE } from '../../../Constants';
 import FolderList from '../fileList/FolderList';
-import { resetSelectedFiles, setModalContent, toggleLoader, togglePlayer } from '../../store/actions';
+import { resetSelectedFiles, setModalContent, setSelectFile, toggleLoader, togglePlayer } from '../../store/actions';
 import * as RNFS from 'react-native-fs';
 import { connect } from 'react-redux';
 import Loader from '../../utility/loader/Loader';
@@ -18,6 +18,7 @@ import ErrorModal from '../../utility/modal/ErrorModal';
 import SearchYoutube from '../search/Search';
 import Playlists from '../playlist/Playlists';
 import { getFiles } from '../../utility/store/action';
+import PlaylistModal from '../../utility/modal/PlaylistModal';
 
 const styles = StyleSheet.create({
     tabBar: {
@@ -42,7 +43,8 @@ const Main = (props) => {
     const layout = useWindowDimensions();
     const [index, setIndex] = useState(0);
     const [icon, setIcon] = useState();
-    const [menuItems, setMenuItems] = useState([])
+    const [menuItems, setMenuItems] = useState([]);
+    const [displayPlaylistModal, setDisplayPlaylistModal] = useState(false)
     const routes = [
         { key: "songs", title: "Songs" },
         { key: 'folder', title: 'Folders' },
@@ -86,7 +88,6 @@ const Main = (props) => {
             getFiles(RNFS.ExternalStorageDirectoryPath);
         }
         RNFS.exists(FILE_STORAGE_DIRECTORY).then(async resp => {
-            console.log(FILE_STORAGE_DIRECTORY, resp)
             if (!resp) {
                 await RNFS.mkdir(FILE_STORAGE_DIRECTORY);
             }
@@ -98,6 +99,10 @@ const Main = (props) => {
         () => {
             if (props.displayPlayer) {
                 props.togglePlayer(false);
+                return true;
+            } else if (props.selectFile) {
+                props.setSelectFile(false);
+                props.resetSelectedFiles();
                 return true;
             } else {
                 return false;
@@ -126,7 +131,9 @@ const Main = (props) => {
         if (item !== "itemSelected") return;
         switch (menuItems[index]) {
             case SELECT_ALL_MENU_ITEM: console.log("select all"); break;
-            case ADD_TO_PLAYLIST_MENU_ITEM: console.log("add to playlist", index, props.selectedFiles); break;
+            case ADD_TO_PLAYLIST_MENU_ITEM:
+                setDisplayPlaylistModal(true);
+                break;
             default: break;
         }
     }
@@ -169,6 +176,7 @@ const Main = (props) => {
                 />
                 <Footer />
                 <ErrorModal />
+                <PlaylistModal visible={displayPlaylistModal} closeModal={() => setDisplayPlaylistModal(false)} />
             </View>
             <Player />
             {props.displayLoader ? <Loader /> : null}
@@ -182,7 +190,8 @@ const mapStateToProps = (state) => {
         allFiles: state.data.allFiles,
         displayLoader: state.app.displayLoader,
         displayPlayer: state.app.displayPlayer,
-        selectedFiles: state.app.selectedFiles
+        selectedFiles: state.app.selectedFiles,
+        selectFile: state.app.selectFile
     }
 }
 
@@ -191,7 +200,8 @@ const mapDispatchToProps = (dispatch) => {
         toggleLoader: (value) => dispatch(toggleLoader(value)),
         togglePlayer: (value) => dispatch(togglePlayer(value)),
         setModalContent: (content) => dispatch(setModalContent(content)),
-        resetSelectedFiles: () => dispatch(resetSelectedFiles())
+        resetSelectedFiles: () => dispatch(resetSelectedFiles()),
+        setSelectFile: (value) => dispatch(setSelectFile(value))
     }
 }
 

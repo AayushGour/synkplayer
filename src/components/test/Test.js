@@ -1,12 +1,10 @@
-import React, { Component } from 'react';
-import { View, Text, Animated, PanResponder, Button } from 'react-native';
-import Sound from "react-native-sound";
-import TrackPlayer, { State } from 'react-native-track-player';
-import * as Animatable from "react-native-animatable";
-import ytdl from 'react-native-ytdl';
-import ytsr from "react-native-ytsr";
+import React from 'react';
+import { Button, View } from 'react-native';
 import * as RNFS from "react-native-fs";
 import MediaMeta from "react-native-media-meta";
+import TrackPlayer from 'react-native-track-player';
+import ytdl from 'react-native-ytdl';
+import ytsr from "react-native-ytsr";
 import { connect } from 'react-redux';
 import { addToPlaylist } from '../playlist/store/action';
 

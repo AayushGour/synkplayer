@@ -12,8 +12,9 @@ import Loader from './src/utility/loader/Loader';
 
 export default function App() {
   useEffect(() => {
-    async () => {
-      await TrackPlayer.setupPlayer({})
+    let setupPlayer = async () => {
+      await TrackPlayer.setupPlayer({});
+
       await TrackPlayer.updateOptions({
         // Media controls capabilities
         capabilities: [
@@ -21,7 +22,7 @@ export default function App() {
           Capability.SkipToNext,
           Capability.Play,
           Capability.Pause,
-          Capability.Stop,
+          // Capability.Stop,
         ],
 
         // Capabilities that will show up when the notification is in the compact form on Android
@@ -32,10 +33,12 @@ export default function App() {
         // stopIcon: require('./stop-icon.png'),
         // previousIcon: <Icon name="stepbackward" size={30} color={THEME_BLUE_FOREGROUND} />,
         // nextIcon: <Icon name="stepforward" size={30} color={THEME_BLUE_FOREGROUND} />,
-        // icon: require('./notification-icon.png')
+        icon: require("./assets/images/SynkLogo.png")
       });
-    }
-  }, [])
+    };
+    setupPlayer();
+  }, []);
+
   return (
     <Provider store={store} >
       <PersistGate loading={null} persistor={persistor}>
