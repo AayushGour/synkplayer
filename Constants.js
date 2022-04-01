@@ -1,5 +1,7 @@
 import { StyleSheet } from 'react-native'
 import { ExternalStorageDirectoryPath } from 'react-native-fs';
+import * as RNFS from "react-native-fs";
+import { setIntervalTimeout } from './src/utility/store/action';
 
 export const THEME_BLUE_FOREGROUND = "#01a4e9";
 export const THEME_BLUE_FOREGROUND_TRANSPARENT = "#01a4e990";
@@ -17,6 +19,13 @@ export const ModalTypes = {
 }
 export const SELECT_ALL_MENU_ITEM = "Select All";
 export const ADD_TO_PLAYLIST_MENU_ITEM = "Add to playlist";
+
+export const getSDCardPath = async () => {
+    return await RNFS.getAllExternalFilesDirs().then(resp => {
+        let path = resp?.find((elem) => !elem.includes("emulated"));
+        return (path?.split("/").slice(0, 3).join("/"));
+    })
+}
 // export const customFonts = {
 //     Montserrat: require("./src/assets/fonts/Montserrat-Regular.ttf")
 // }

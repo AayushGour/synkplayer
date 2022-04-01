@@ -128,7 +128,8 @@ const PlaylistModal = (props) => {
                                         onPress={() => setNewPlaylist(true)}
                                         background={TouchableNativeFeedback.Ripple(THEME_BLUE_FOREGROUND, false)}
                                     >
-                                        <View>
+                                        <View style={{ flexDirection: "row", alignItems: "center" }}>
+                                            <Icon style={{ paddingRight: 5 }} name="playlist-plus" color={THEME_WHITE} size={24} />
                                             <Text style={styles.playlistTitle}>Create New Playlist</Text>
                                         </View>
                                     </TouchableNativeFeedback>

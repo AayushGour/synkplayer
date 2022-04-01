@@ -19,6 +19,7 @@ import SearchYoutube from '../search/Search';
 import Playlists from '../playlist/Playlists';
 import { getFiles } from '../../utility/store/action';
 import PlaylistModal from '../../utility/modal/PlaylistModal';
+import { NavigationContainer } from '@react-navigation/native';
 
 const styles = StyleSheet.create({
     tabBar: {
@@ -46,29 +47,29 @@ const Main = (props) => {
     const [menuItems, setMenuItems] = useState([]);
     const [displayPlaylistModal, setDisplayPlaylistModal] = useState(false)
     const routes = [
-        { key: "songs", title: "Songs" },
-        { key: 'folder', title: 'Folders' },
-        { key: "playlists", title: "Playlists" },
-        { key: 'test', title: 'Test' },
-        { key: "search", title: " YouTube Search" }
+        { index: 0, key: "songs", title: "Songs" },
+        { index: 1, key: 'folder', title: 'Folders' },
+        { index: 2, key: "playlists", title: "Playlists" },
+        { index: 3, key: 'test', title: 'Test' },
+        { index: 4, key: "search", title: " YouTube Search" }
     ];
     // const renderScene = SceneMap({
     //     songs: FileList,
     //     first: FolderList,
     //     test: Test
     // })
-    const renderScene = ({ route }) => {
+    const renderScene = ({ route, jumpTo, position }) => {
         switch (route.key) {
             case "songs":
-                return <FileList />
+                return <FileList isFocused={index === route?.index} />
             case "folder":
-                return <FolderList setMenuItemList={setMenuItemList} />
+                return <FolderList isFocused={index === route?.index} setMenuItemList={setMenuItemList} />
             case "test":
-                return <Test />
+                return <Test isFocused={index === route?.index} />
             case "search":
-                return <SearchYoutube />
+                return <SearchYoutube isFocused={index === route?.index} />
             case "playlists":
-                return <Playlists />
+                return <Playlists isFocused={index === route?.index} />
             default:
                 return null;
         }
@@ -83,9 +84,10 @@ const Main = (props) => {
                 })
             }
         })
+        TrackPlayer.setVolume(1);
         if (props.allFiles?.length === 0) {
             props.toggleLoader(true)
-            getFiles(RNFS.ExternalStorageDirectoryPath);
+            getFiles(props.directoryReadPath);
         }
         RNFS.exists(FILE_STORAGE_DIRECTORY).then(async resp => {
             if (!resp) {
@@ -155,7 +157,7 @@ const Main = (props) => {
 
     // render() {
     return (
-        <>
+        <NavigationContainer>
             <Header onRef={onRef} showPopupMenu={showPopupMenu} showMenuIcon={menuItems.length > 0} />
             <View style={{ width: "100%", flex: 1 }}>
                 <TabView
@@ -180,7 +182,7 @@ const Main = (props) => {
             </View>
             <Player />
             {props.displayLoader ? <Loader /> : null}
-        </>
+        </NavigationContainer>
     );
     // }
 }
@@ -191,7 +193,8 @@ const mapStateToProps = (state) => {
         displayLoader: state.app.displayLoader,
         displayPlayer: state.app.displayPlayer,
         selectedFiles: state.app.selectedFiles,
-        selectFile: state.app.selectFile
+        selectFile: state.app.selectFile,
+        directoryReadPath: state.data.directoryReadPath
     }
 }
 
