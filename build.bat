@@ -9,3 +9,4 @@ cls
 echo Running Build
 gradlew assembleRelease -x bundleReleaseJsAndAssets
 cd ..
+move /Y android\app\build\outputs\apk\release\app-release.apk 
