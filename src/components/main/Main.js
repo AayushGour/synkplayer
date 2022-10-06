@@ -85,15 +85,16 @@ const Main = (props) => {
             }
         })
         TrackPlayer.setVolume(1);
-        if (props.allFiles?.length === 0) {
-            props.toggleLoader(true)
-            getFiles(props.directoryReadPath);
-        }
-        RNFS.exists(FILE_STORAGE_DIRECTORY).then(async resp => {
-            if (!resp) {
-                await RNFS.mkdir(FILE_STORAGE_DIRECTORY);
-            }
-        })
+        // if (props?.allFiles?.length === 0) {
+        //     props.toggleLoader(true)
+        //     getFiles(props.directoryReadPath);
+        // }
+        // RNFS.exists(FILE_STORAGE_DIRECTORY).then(async resp => {
+        //     if (!resp) {
+        //         await RNFS.mkdir(FILE_STORAGE_DIRECTORY);
+        //     }
+        // })
+
     }, [])
 
     const backHandler = BackHandler.addEventListener(
@@ -158,7 +159,7 @@ const Main = (props) => {
     // render() {
     return (
         <NavigationContainer>
-            <Header onRef={onRef} showPopupMenu={showPopupMenu} showMenuIcon={menuItems.length > 0} />
+            <Header onRef={onRef} showPopupMenu={showPopupMenu} showMenuIcon={menuItems?.length > 0} />
             <View style={{ width: "100%", flex: 1 }}>
                 <TabView
                     navigationState={{ index, routes }}

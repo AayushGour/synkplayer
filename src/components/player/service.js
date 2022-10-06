@@ -71,7 +71,7 @@ export const handlePlayerSwipe = (value) => {
 export const playNext = async () => {
     let currentTrackNumber = await TrackPlayer.getCurrentTrack();
     let queue = await TrackPlayer.getQueue();
-    let nextTrackNumber = currentTrackNumber >= 0 && (currentTrackNumber + 1) < queue.length ? currentTrackNumber + 1 : 0;
+    let nextTrackNumber = currentTrackNumber >= 0 && (currentTrackNumber + 1) < queue?.length ? currentTrackNumber + 1 : 0;
     let nextTrack = queue[nextTrackNumber];
     // store.dispatch(setCurrentTrack(nextTrack));
     await TrackPlayer.skip(nextTrackNumber);
@@ -80,7 +80,7 @@ export const playNext = async () => {
 export const playPrevious = async () => {
     let currentTrackNumber = await TrackPlayer.getCurrentTrack();
     let queue = await TrackPlayer.getQueue();
-    let previousTrackNumber = (currentTrackNumber - 1) >= 0 ? currentTrackNumber - 1 : (queue.length - 1);
+    let previousTrackNumber = (currentTrackNumber - 1) >= 0 ? currentTrackNumber - 1 : (queue?.length - 1);
     let previousTrack = queue[previousTrackNumber];
     // store.dispatch(setCurrentTrack(previousTrack));
     await TrackPlayer.skip(previousTrackNumber);
@@ -99,7 +99,7 @@ export const playTrackWithPath = async (track) => {
 export const playTrackWithIndex = async (index) => {
     let allFiles = store.getState().data.allFiles;
     let queue = await TrackPlayer.getQueue();
-    if (queue.length != allFiles.length) {
+    if (queue?.length != allFiles?.length) {
         console.log(allFiles, index)
         await TrackPlayer.reset().catch((error) => displayError(error));
         let currentTrack = allFiles[index];

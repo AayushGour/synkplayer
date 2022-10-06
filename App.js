@@ -9,6 +9,7 @@ import Main from './src/components/main/Main';
 import { PersistGate } from 'redux-persist/integration/react';
 import store, { persistor } from './src/store/store';
 import Loader from './src/utility/loader/Loader';
+import { PermissionsAndroid } from 'react-native-windows';
 
 export default function App() {
   useEffect(() => {
@@ -37,6 +38,7 @@ export default function App() {
       });
     };
     setupPlayer();
+    PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE)
   }, []);
 
   return (

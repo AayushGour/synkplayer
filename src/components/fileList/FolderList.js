@@ -91,7 +91,7 @@ const FolderList = (props) => {
             let list = []
             await RNFS.readDir(path)
                 .then((result) => {
-                    for (var i = 0; i < result.length; i++) {
+                    for (var i = 0; i < result?.length; i++) {
                         // console.log(JSON.stringify(result[i].name) + "\n")
                         var tmp = result[i];
                         list.push(tmp)
@@ -181,12 +181,12 @@ const FolderList = (props) => {
                                                 array.push(item);
                                             }
                                             console.log("array", array)
-                                            if (array.length > 0) {
+                                            if (array?.length > 0) {
                                                 getSelectedFiles(array);
                                                 // setState({
                                                 //     selectedArray: array
                                                 // })
-                                            } else if (array.length === 0) {
+                                            } else if (array?.length === 0) {
                                                 getSelectedFiles(array);
                                                 props.setMenuItemList()
                                                 props.setSelectFile(false);
